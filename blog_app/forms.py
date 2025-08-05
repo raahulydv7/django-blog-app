@@ -1,7 +1,8 @@
 from django import forms
 from .models import UserProfile
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -15,3 +16,14 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['username'].help_text = None  
         self.fields['password1'].help_text = None
         self.fields['password2'].help_text = None
+
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(
+        label="Username",
+        widget=forms.TextInput(attrs={'autofocus': True}),
+    )
+    password = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput,
+    )
