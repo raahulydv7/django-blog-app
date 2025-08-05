@@ -14,3 +14,14 @@ class UserProfile(models.Model):
     def get_full_name(self):
         return f"{self.fname or ''} {self.lname or ''}".strip()
     
+    def __str__(self):
+        return self.user.username
+class Posts(models.Model):
+    user  = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.username

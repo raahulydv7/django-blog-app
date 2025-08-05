@@ -1,9 +1,11 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
-from .forms import CustomUserCreationForm,CustomLoginForm
+from .forms import CustomUserCreationForm,CustomLoginForm, PostForm,PostUpdateForm
+from .models import Posts
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def home(request):
     return render(request, 'blog_app/home.html')
 
@@ -44,4 +46,54 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.error(request, 'You have been logged out successfully.')
-    redirect('login')
+    return  redirect('login')
+
+
+@login_required
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST,request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            messages.success(request, 'Post created successfully!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Error creating post. Please check the form.')
+    else:
+        form = PostForm()
+    
+    return render(request, 'blog_app/create_post.html', {'form': form})
+
+@login_required
+def update_post(request,pk):
+    post = get_object_or_404(Posts, pk=pk, user=request.user)
+
+    if post.user != request.user:
+        messages.error(request, "You are not authorized to edit this post.")
+        return redirect('home')
+    
+    if request.method == "POST":
+        form = PostUpdateForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Post updated successfully!')
+            return redirect('home') 
+        form = PostUpdateForm(instance=post)
+
+    return render(request, 'blog_app/update_post.html', {'form': form})
+
+@login_required
+def delete_post(request,pk):
+    post = get_object_or_404(Posts, pk=pk, user=request.user)
+
+    if post.user != request.user:
+        messages.error(request, "You are not authorized to edit this post.")
+        return redirect('home')
+    
+    if request.method == "POST":
+        post.delete()
+        messages.success(request, 'Post deleted successfully.')
+        return redirect('home')
+    return render(request, 'blog_app/confirm_delete.html', {'post': post})

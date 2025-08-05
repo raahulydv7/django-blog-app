@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserProfile
+from .models import UserProfile,Posts
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 
@@ -27,3 +27,25 @@ class CustomLoginForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput,
     )
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Posts
+        fields = ['description', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Write something...',
+                'rows': 4
+            }),
+        }
+
+class PostUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Posts
+        fields = ['description']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Write something...',
+                'rows': 4
+            }),
+        }

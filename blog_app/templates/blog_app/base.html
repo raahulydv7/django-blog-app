@@ -19,9 +19,20 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Posts</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <span class="nav-link text-warning font-weight-bold">
+                                {{ request.user.username }}
+                            </span>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
