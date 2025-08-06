@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     register_user, login_user, logout_user,
-    home, user_profile,update_user_profile, create_post, update_post, delete_post
+    home, user_profile, update_user_profile, follow, unfollow, search_users, create_post, update_post, delete_post
 )
 
 urlpatterns = [
@@ -15,6 +15,13 @@ urlpatterns = [
     # 👤 Profile
     path('profile/', user_profile, name='user-profile'),
     path('update-profile/', update_user_profile, name='update-user-profile'),
+
+    # 👤 follow, unfollow
+    path('follow/<int:pk>/', follow, name='follow-user'),
+    path('unfollow/<int:pk>/', unfollow, name='unfollow-user'),
+
+    # 👤 search
+    path('search-users/', search_users, name='search-users'),
 
     # 📝 Post management
     path('add-post/', create_post, name='add-post'),

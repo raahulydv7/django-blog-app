@@ -4,10 +4,15 @@ from django.contrib.auth import authenticate, login,logout
 from .forms import CustomUserCreationForm,CustomLoginForm,UserProfileForm, PostForm,PostUpdateForm
 from .models import Posts
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 @login_required
 def home(request):
-    return render(request, 'blog_app/home.html')
+    user_profile = request.user.userprofile
+    following_profiles = user_profile.following.all()
+    posts = Posts.objects.filter(user__userprofile__in=following_profiles).order_by('-created_at')
+    return render(request, 'blog_app/home.html', {'posts': posts})
 
 def register_user(request):
     if request.method == "POST":
@@ -49,9 +54,9 @@ def logout_user(request):
     return  redirect('login')
 
 @login_required
-def user_profile(request):
+def user_profile(request,id):
     profile = request.user.userprofile
-    posts = Posts.objects.filter(user=request.user).order_by('-created_at')
+    posts = Posts.objects.filter(user=id).order_by('-created_at')
     form = UserProfileForm(instance=profile)
     return render(request, 'blog_app/user_profile.html', {'form': form, 'posts': posts})
 
@@ -68,6 +73,37 @@ def update_user_profile(request):
         form = UserProfileForm(instance=profile)
 
     return render(request, 'blog_app/user_profile_update.html', {'form': form})
+
+@login_required
+def follow(request, pk):
+    target_user = get_object_or_404(User, id=pk)
+    
+    if target_user == request.user:
+        messages.warning(request, "You can't follow yourself.")
+    else:
+        target_user.userprofile.followers.add(request.user)
+        messages.success(request, f"You are now following {target_user.username}.")
+    
+    return redirect('user-profile')
+
+
+@login_required
+def unfollow(request, pk):
+    target_user = get_object_or_404(User, id=pk)
+    target_user.userprofile.followers.remove(request.user)
+    messages.info(request, f"You unfollowed {target_user.username}.")
+    return redirect('user-profile')
+
+@login_required
+def search_users(request):
+    query = request.GET.get('q')
+    users = []
+    if query:
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(userprofile__fname__icontains=query) 
+        ).distinct()
+    return render(request, 'blog_app/search_users.html', {'users': users, 'query': query})
 
 @login_required
 def create_post(request):
