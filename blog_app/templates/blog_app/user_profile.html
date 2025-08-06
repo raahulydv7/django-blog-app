@@ -1,30 +1,22 @@
 {% extends 'blog_app/base.html' %}
-{% load static %}
+{% load crispy_forms_tags %}
 
 {% block title %}
-User Profile
+Profile
 {% endblock title %}
 
 {% block content %}
 <div class="container mt-5">
-  <!-- ✅ User Profile Info -->
-  <div class="card mb-4 shadow-sm">
+  <div class="card shadow-sm">
     <div class="card-body">
-
-        <div class="d-flex justify-content-end">
-          <a href="{% url 'logout' %}" class="text-danger" title="Logout">
-            <i class="fas fa-sign-out-alt fa-lg"></i>
-          </a>
-        </div>
-
       <div class="row">
         <!-- Profile Info -->
         <div class="col-12 mb-3">
-          <h4 class="mb-1">{{ request.user.username|title }}</h4>
-          <p class="mb-0"><strong>Name:</strong> {{ request.user.userprofile.get_full_name }}</p>
-          <p class="mb-0"><strong>Email:</strong> {{ request.user.email }}</p>
-          <p class="mb-0"><strong>Mobile:</strong> {{ request.user.userprofile.mob }}</p>
-          <p class="mb-0"><strong>Bio:</strong> {{ request.user.userprofile.bio }}</p>
+          <h4 class="mb-1">{{ user.username|title }}</h4>
+          <p class="mb-0"><strong>Name:</strong> {{ profile.get_full_name }}</p>
+          <p class="mb-0"><strong>Email:</strong> {{ user.email }}</p>
+          <p class="mb-0"><strong>Mobile:</strong> {{ profile.mob }}</p>
+          <p class="mb-0"><strong>Bio:</strong> {{ profile.bio }}</p> 
         </div>
 
         <!-- Follower/Following + Actions -->
@@ -32,48 +24,45 @@ User Profile
           <div>
             <span><strong>{{ profile.followers.count }}</strong> Followers</span>
             &nbsp;|&nbsp;
-            <span><strong>{{ profile.following_count }}</strong> Following</span>
+            <span><strong>{{ profile.following.count }}</strong> Following</span>
           </div>
 
           <div>
-            {% if request.user != profile.user %}
+            {% if request.user != user %}
               {% if request.user in profile.followers.all %}
                 <a href="{% url 'unfollow-user' user.id %}" class="btn btn-sm btn-danger">Unfollow</a>
               {% else %}
                 <a href="{% url 'follow-user' user.id %}" class="btn btn-sm btn-primary">Follow</a>
               {% endif %}
             {% else %}
-              <a href="{% url 'update-user-profile' %}" class="btn btn-sm btn-outline-primary">Update Profile</a>
+              <a href="{% url 'update-user-profile' pk=user.id %}" class="btn btn-sm btn-outline-primary">Update Profile</a>
+              <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger ml-2" title="Logout">
+                <i class="fas fa-sign-out-alt text-danger"></i>
+              </a>
             {% endif %}
           </div>
         </div>
       </div>
     </div>
-</div>
+  </div>
 
-
-
-  <!-- ✅ User's Posts -->
-  <div class="row">
+  <!-- User Posts -->
+  <div class="row mt-4">
     {% for post in posts %}
-      <div class="col-md-4 mb-4">
-        <div class="card h-100 shadow-sm">
-          {% if post.image %}
+      <div class="col-md-4 mb-3">
+        <div class="card">
           <img src="{{ post.image.url }}" class="card-img-top" alt="Post Image">
-          {% endif %}
           <div class="card-body">
             <p class="card-text">{{ post.description }}</p>
-          </div>
-          <div class="card-footer text-center">
-            {% if request.user == post.user %}
-              <a href="{% url 'edit-post' post.id %}" class="btn btn-sm btn-primary">Edit</a>
-              <a href="{% url 'delete-post' post.id %}" class="btn btn-sm btn-danger">Delete</a>
+            {% if request.user == user %}
+              <a href="{% url 'edit-post' post.id %}" class="btn btn-sm btn-outline-info">Edit</a>
+              <a href="{% url 'delete-post' post.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
             {% endif %}
           </div>
         </div>
       </div>
     {% empty %}
-      <p class="text-muted mx-auto">No posts yet.</p>
+      <p class="text-center">No posts to display.</p>
     {% endfor %}
   </div>
 </div>

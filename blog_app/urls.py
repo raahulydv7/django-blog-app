@@ -13,8 +13,8 @@ urlpatterns = [
     path('logout/', logout_user, name='logout'),
 
     # 👤 Profile
-    path('profile/', user_profile, name='user-profile'),
-    path('update-profile/', update_user_profile, name='update-user-profile'),
+    path('profile/<int:pk>/', user_profile, name='user-profile'),
+    path('update-profile/<int:pk>/', update_user_profile, name='update-user-profile'),
 
     # 👤 follow, unfollow
     path('follow/<int:pk>/', follow, name='follow-user'),

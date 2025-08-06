@@ -21,7 +21,7 @@ Update Profile
           </form>
         </div>
         <div class="card-footer text-center">
-          <a href="{% url 'user-profile' %}" class="btn btn-sm btn-secondary">Back to Profile</a>
+          <a href="{% url 'user-profile' pk=user_obj.id %}" class="btn btn-sm btn-secondary">Back to Profile</a>
         </div>
       </div>
     </div>
