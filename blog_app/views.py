@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
-from .forms import CustomUserCreationForm,CustomLoginForm, PostForm,PostUpdateForm
+from .forms import CustomUserCreationForm,CustomLoginForm,UserProfileForm, PostForm,PostUpdateForm
 from .models import Posts
 from django.contrib.auth.decorators import login_required
 
@@ -48,6 +48,26 @@ def logout_user(request):
     messages.error(request, 'You have been logged out successfully.')
     return  redirect('login')
 
+@login_required
+def user_profile(request):
+    profile = request.user.userprofile
+    posts = Posts.objects.filter(user=request.user).order_by('-created_at')
+    form = UserProfileForm(instance=profile)
+    return render(request, 'blog_app/user_profile.html', {'form': form, 'posts': posts})
+
+@login_required
+def update_user_profile(request):
+    profile = request.user.userprofile
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated.')
+            return redirect('user-profile')
+    else:
+        form = UserProfileForm(instance=profile)
+
+    return render(request, 'blog_app/user_profile_update.html', {'form': form})
 
 @login_required
 def create_post(request):

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 
 
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     
@@ -28,6 +29,14 @@ class CustomLoginForm(AuthenticationForm):
         widget=forms.PasswordInput,
     )
 
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['fname', 'lname', 'mob', 'bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Tell us about yourself...'}),
+        }
+        
 class PostForm(forms.ModelForm):
     class Meta:
         model = Posts
