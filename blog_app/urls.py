@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     register_user, login_user, logout_user,
-    home, user_profile, update_user_profile, follow, unfollow, search_users, create_post, update_post, delete_post
+    home, user_profile, update_user_profile, follow, unfollow, search_users,search_users_profile, create_post, update_post, delete_post
 )
 
 urlpatterns = [
@@ -22,6 +22,8 @@ urlpatterns = [
 
     # 👤 search
     path('search-users/', search_users, name='search-users'),
+    path('search-users-profile/<int:user_id>/', search_users_profile, name='search-users-profile'),
+
 
     # 📝 Post management
     path('add-post/', create_post, name='add-post'),

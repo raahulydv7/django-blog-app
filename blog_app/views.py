@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
 from .forms import CustomUserCreationForm,CustomLoginForm,UserProfileForm, PostForm,PostUpdateForm
-from .models import Posts
+from .models import Posts,UserProfile
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -77,22 +77,28 @@ def update_user_profile(request):
 @login_required
 def follow(request, pk):
     target_user = get_object_or_404(User, id=pk)
-    
+    target_profile = get_object_or_404(UserProfile, user=target_user)
+    current_user_profile = get_object_or_404(UserProfile, user=request.user)
+
     if target_user == request.user:
         messages.warning(request, "You can't follow yourself.")
     else:
-        target_user.userprofile.followers.add(request.user)
+        current_user_profile.following.add(target_profile)
         messages.success(request, f"You are now following {target_user.username}.")
-    
-    return redirect('user-profile')
+
+    return redirect('search-users-profile', target_user.id)
 
 
 @login_required
 def unfollow(request, pk):
     target_user = get_object_or_404(User, id=pk)
-    target_user.userprofile.followers.remove(request.user)
+    target_profile = get_object_or_404(UserProfile, user=target_user)
+    current_user_profile = get_object_or_404(UserProfile, user=request.user)
+
+    current_user_profile.following.remove(target_profile)
     messages.info(request, f"You unfollowed {target_user.username}.")
-    return redirect('user-profile')
+
+    return redirect('search-users-profile', target_user.id)
 
 @login_required
 def search_users(request):
@@ -104,6 +110,18 @@ def search_users(request):
             Q(userprofile__fname__icontains=query) 
         ).distinct()
     return render(request, 'blog_app/search_users.html', {'users': users, 'query': query})
+
+@login_required
+def search_users_profile(request,user_id):
+    target_user = get_object_or_404(User, id=user_id)
+    profile = get_object_or_404(UserProfile, user=target_user)
+    posts = Posts.objects.filter(user=target_user).order_by('-created_at')
+
+    return render(request, 'blog_app/search_user_profile.html', {
+        'user': target_user,
+        'profile': profile,
+        'posts': posts
+    })
 
 @login_required
 def create_post(request):

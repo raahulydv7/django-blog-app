@@ -1,23 +1,31 @@
 {% extends 'blog_app/base.html' %}
+
 {% block title %}Search Users{% endblock title %}
 
 {% block content %}
 <div class="container mt-4">
-  <h3>Search Results for "{{ query }}"</h3>
+  <form method="get" action="{% url 'search-users' %}" class="form-inline mb-3">
+    <input type="text" name="q" placeholder="Search users..." class="form-control mr-2" value="{{ query }}">
+    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+  </form>
 
   {% if users %}
-    <ul class="list-group mt-3">
-      {% for user in users %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <strong>{{ user.username }}</strong><br>
-            {{ user.userprofile.get_full_name }}
-          </div>
-        </li>
-      {% endfor %}
+    <ul class="list-group">
+        {% for user in users %}
+            <a href="{% url 'search-users-profile' user.id %}" class="text-decoration-none">
+            <li class="list-group-item mb-3 p-3 shadow-sm rounded border d-flex justify-content-between align-items-center">
+                <div class="w-100">
+                <strong class="d-block text-dark">{{ user.username }}</strong>
+                <span class="text-muted">{{ user.userprofile.get_full_name }}</span>
+                </div>
+            </li>
+            </a>
+        {% endfor %}
     </ul>
-  {% else %}
-    <p class="mt-3">No users found.</p>
+    {% else %}
+    {% if query %}
+      <p>No users found for "<strong>{{ query }}</strong>"</p>
+    {% endif %}
   {% endif %}
 </div>
 {% endblock content %}

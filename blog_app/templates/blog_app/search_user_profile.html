@@ -1,0 +1,57 @@
+{% extends 'blog_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Search Profile{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row">
+        <!-- Profile Info -->
+        <div class="col-12 mb-3">
+          <h4 class="mb-1">{{ user.username|title }}</h4>
+          <p class="mb-0"><strong>Name:</strong> {{ profile.get_full_name }}</p>
+          <p class="mb-0"><strong>Email:</strong> {{ user.email }}</p>
+          <p class="mb-0"><strong>Mobile:</strong> {{ profile.mob }}</p>
+          <p class="mb-0"><strong>Bio:</strong> {{ profile.bio }}</p> 
+        </div>
+
+        <div class="col-12 d-flex justify-content-between align-items-center">
+          <div>
+            <span><strong>{{ profile.followers.count }}</strong> Followers</span>
+            &nbsp;|&nbsp;
+            <span><strong>{{ user.following.count }}</strong> Following</span>
+          </div>
+
+          <div>
+            {% if request.user != user %}
+              {% if request.user in profile.followers.all %}
+                <a href="{% url 'unfollow-user' user.id %}" class="btn btn-sm btn-danger">Unfollow</a>
+              {% else %}
+                <a href="{% url 'follow-user' user.id %}" class="btn btn-sm btn-primary">Follow</a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Posts -->
+  <div class="row mt-4">
+    {% for post in posts %}
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <img src="{{ post.image.url }}" class="card-img-top" alt="Post Image">
+          <div class="card-body">
+            <p class="card-text">{{ post.description }}</p>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">No posts to display.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}
