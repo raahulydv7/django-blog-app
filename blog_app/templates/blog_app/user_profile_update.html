@@ -2,26 +2,35 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-Update Profile
+User Profile
 {% endblock title %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white text-center">
-          <h4 class="mb-0">Update Profile</h4>
+        <div class="card-header bg-dark text-white text-center">
+          <h4 class="mb-0">{{ user_obj.username|title }}'s Profile</h4>
         </div>
         <div class="card-body">
-          <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary btn-block mt-3">Save Changes</button>
-          </form>
+          {% if form %}
+            <form method="post">
+              {% csrf_token %}
+              {{ form|crispy }}
+              <button type="submit" class="btn btn-primary btn-block mt-3">Save Changes</button>
+            </form>
+          {% else %}
+            <p><strong>Full Name:</strong> {{ profile.get_full_name }}</p>
+            <p><strong>Email:</strong> {{ user_obj.email }}</p>
+            <p><strong>Mobile:</strong> {{ profile.mob }}</p>
+            <p><strong>Bio:</strong> {{ profile.bio }}</p>
+          {% endif %}
         </div>
         <div class="card-footer text-center">
-          <a href="{% url 'user-profile' pk=user_obj.id %}" class="btn btn-sm btn-secondary">Back to Profile</a>
+          {% if request.user == user_obj %}
+            <a href="{% url 'update-user-profile' pk=user_obj.id %}" class="btn btn-sm btn-outline-primary">Edit Profile</a>
+          {% endif %}
         </div>
       </div>
     </div>

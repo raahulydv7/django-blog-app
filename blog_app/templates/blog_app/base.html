@@ -85,10 +85,10 @@
     <i class="fa-solid fa-plus fa-lg"></i>
   </a>
   
-  {% comment %} <a href="{% url 'user-profile' pk=user_obj.id %}
+  <a href="{% url 'user-profile' %}
 " class="nav-link text-center">
     <i class="fa-solid fa-user fa-lg"></i>
-  </a> {% endcomment %}
+  </a>
 
   <form method="get" action="{% url 'search-users' %}" class="form-inline">
     <div class="input-group input-group-sm">

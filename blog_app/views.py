@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
 from .forms import CustomUserCreationForm,CustomLoginForm,UserProfileForm, PostForm,PostUpdateForm
-from .models import Posts,UserProfile
+from .models import Posts
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -54,43 +54,25 @@ def logout_user(request):
     return  redirect('login')
 
 @login_required
-def user_profile(request, pk):
-    target_user = get_object_or_404(User, id=pk)
-    profile = get_object_or_404(UserProfile, user=target_user)
-    posts = Posts.objects.filter(user=target_user).order_by('-created_at')
-
-    # Only show form if user is viewing their own profile
-    form = UserProfileForm(instance=profile) if request.user == target_user else None
-
-    return render(request, 'blog_app/user_profile.html', {
-        'form': form,
-        'posts': posts,
-        'profile': profile,
-        'user_obj': target_user,
-    })
-
+def user_profile(request):
+    profile = request.user.userprofile
+    posts = Posts.objects.filter(user=request.user).order_by('-created_at')
+    form = UserProfileForm(instance=profile)
+    return render(request, 'blog_app/user_profile.html', {'form': form, 'posts': posts})
 
 @login_required
-def update_user_profile(request, pk):
-    if request.user.id != pk:
-        messages.warning(request, "You can only update your own profile.")
-        return redirect('user-profile', pk=request.user.id)
-
-    profile = get_object_or_404(UserProfile, user=request.user)
-
+def update_user_profile(request):
+    profile = request.user.userprofile
     if request.method == 'POST':
         form = UserProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated.')
-            return redirect('user-profile', pk=request.user.id)
+            return redirect('user-profile')
     else:
         form = UserProfileForm(instance=profile)
 
-    return render(request, 'blog_app/user_profile_update.html', {
-        'form': form,
-        'user_obj': request.user,
-    })
+    return render(request, 'blog_app/user_profile_update.html', {'form': form})
 
 @login_required
 def follow(request, pk):

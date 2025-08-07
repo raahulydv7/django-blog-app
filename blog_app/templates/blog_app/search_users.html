@@ -13,7 +13,6 @@
             <strong>{{ user.username }}</strong><br>
             {{ user.userprofile.get_full_name }}
           </div>
-          <a href="{% url 'user-profile' pk=user.id %}" class="btn btn-sm btn-primary">View Profile</a>
         </li>
       {% endfor %}
     </ul>
