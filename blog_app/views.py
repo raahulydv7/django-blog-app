@@ -58,7 +58,7 @@ def user_profile(request):
     profile = request.user.userprofile
     posts = Posts.objects.filter(user=request.user).order_by('-created_at')
     form = UserProfileForm(instance=profile)
-    return render(request, 'blog_app/user_profile.html', {'form': form, 'posts': posts})
+    return render(request, 'blog_app/user_profile.html', {'form': form, 'posts': posts,'profile':profile})
 
 @login_required
 def update_user_profile(request):
@@ -141,30 +141,23 @@ def create_post(request):
     return render(request, 'blog_app/create_post.html', {'form': form})
 
 @login_required
-def update_post(request,pk):
-    post = get_object_or_404(Posts, pk=pk, user=request.user)
+def update_post(request,post_id):
+    post = get_object_or_404(Posts, pk=post_id, user=request.user)
 
-    if post.user != request.user:
-        messages.error(request, "You are not authorized to edit this post.")
-        return redirect('home')
-    
     if request.method == "POST":
         form = PostUpdateForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
             messages.success(request, 'Post updated successfully!')
-            return redirect('home') 
+            return redirect('home')
+    else:
         form = PostUpdateForm(instance=post)
 
     return render(request, 'blog_app/update_post.html', {'form': form})
 
 @login_required
-def delete_post(request,pk):
-    post = get_object_or_404(Posts, pk=pk, user=request.user)
-
-    if post.user != request.user:
-        messages.error(request, "You are not authorized to edit this post.")
-        return redirect('home')
+def delete_post(request,post_id):
+    post = get_object_or_404(Posts, pk=post_id, user=request.user)
     
     if request.method == "POST":
         post.delete()

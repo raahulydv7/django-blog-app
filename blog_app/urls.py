@@ -14,7 +14,7 @@ urlpatterns = [
 
     # 👤 Profile
     path('profile/', user_profile, name='user-profile'),
-    path('update-profile/<int:pk>/', update_user_profile, name='update-user-profile'),
+    path('update-profile/', update_user_profile, name='update-user-profile'),
 
     # 👤 follow, unfollow
     path('follow/<int:pk>/', follow, name='follow-user'),
