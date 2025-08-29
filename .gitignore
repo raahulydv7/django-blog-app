@@ -26,3 +26,4 @@ media/
 
 # migrations
 blog_app/migrations/__pycache__/
+*.py[cod]
