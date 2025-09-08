@@ -1,31 +1,39 @@
+
 services:
   db:
     image: postgres:14
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    
     environment:
       POSTGRES_USER: ${USER}
       POSTGRES_PASSWORD: ${PASSWORD}
       POSTGRES_DB: ${NAME}
-  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER} -d ${NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   web:
     build: .
+    command: ["/entrypoint.sh", "gunicorn", "--bind", "0.0.0.0:8000", "blog_project.wsgi:application"]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     volumes:
       - static_volume:/app/staticfiles
     expose:
       - 8000
-  
+
   nginx:
     build: ./nginx
     restart: always
     volumes:
       - static_volume:/app/staticfiles
+      - media_volume:/app/media
     ports:
       - "80:80"
     depends_on:
@@ -34,4 +42,4 @@ services:
 volumes:
   postgres_data:
   static_volume:
-      
+  media_volume:
